@@ -1,140 +1,296 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>КУРЬЕР • WHOPPER BAR</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #0d1b2a; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #f5a623; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .auth-card { background: white; border-radius: 40px; padding: 40px; max-width: 400px; margin: 50px auto; text-align: center; }
-        .auth-card input { width: 100%; padding: 15px; border: 2px solid #f5a623; border-radius: 60px; margin: 15px 0; }
-        .orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .order-card { background: white; border-radius: 20px; padding: 20px; border-left: 6px solid #2196F3; margin-bottom: 15px; }
-        .order-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .order-num { font-size: 1.3rem; font-weight: bold; color: #c53a1f; }
-        .status-badge { padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; }
-        .status-waiting { background: #ff9800; color: white; }
-        .status-to_pickup { background: #2196F3; color: white; }
-        .status-with_courier { background: #9c27b0; color: white; }
-        .status-courier_arrived { background: #4CAF50; color: white; }
-        .status-done { background: #999; color: white; }
-        .btn { border: none; padding: 10px 20px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; }
-        .btn-depart { background: #2196F3; color: white; }
-        .btn-arrived { background: #4CAF50; color: white; }
-        .btn-deliver { background: #f5a623; color: #1a1a2e; }
-        .code-input { display: flex; gap: 10px; margin-top: 10px; }
-        .code-input input { flex: 1; padding: 10px; border: 2px solid #f5a623; border-radius: 40px; text-align: center; font-size: 1.2rem; letter-spacing: 3px; }
-        .address-info { background: #e3f2fd; padding: 10px; border-radius: 15px; margin: 10px 0; font-size: 0.9rem; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Курсив Маркет — Поддержка</title>
+<style>
+:root{--bg:#0b1020;--card:#141b33;--card2:#1b2444;--text:#e8ecff;--muted:#8b95c2;
+  --accent:#5b7cff;--accent2:#7c5bff;--ok:#25d18a;--err:#ff5b6e;--warn:#ffc107;
+  --blue:#5b9cff;--orange:#ff8a00;--border:#26305a}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:radial-gradient(1200px 800px at 20% -10%, #1a2350, #0b1020 60%);
+  color:var(--text);min-height:100vh}
+.wrap{max-width:820px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+.logo-sm{font-weight:700}
+.logo-sm span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.content{padding:16px;flex:1;display:grid;grid-template-columns:320px 1fr;gap:14px;min-height:0}
+@media(max-width:700px){.content{grid-template-columns:1fr}}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:14px;color:var(--muted);font-weight:600;margin:0 0 10px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);
+  background:#0f1530;color:var(--text);font-size:15px;margin-bottom:10px;font-family:inherit;outline:none}
+.input:focus{border-color:var(--accent)}
+.btn{width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;font-size:15px;font-weight:600;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:inherit;transition:transform .1s;margin-bottom:8px}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn.small{width:auto;padding:8px 14px;font-size:13px;border-radius:10px;margin:0}
+.btn:disabled{opacity:.5;cursor:wait}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.panel{width:100%;max-width:400px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px}
+.brand{text-align:center;margin-bottom:20px}
+.logo{width:56px;height:56px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));margin-bottom:10px}
+.err{color:var(--err);font-size:13px;min-height:18px;margin-bottom:8px}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.threads{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
+.threads-head{padding:12px 14px;border-bottom:1px solid var(--border)}
+.thread-list{flex:1;overflow-y:auto}
+.thread{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;display:flex;gap:10px}
+.thread:hover{background:var(--card2)}
+.thread.active{background:rgba(91,124,255,.12);border-left:3px solid var(--accent)}
+.thread-body{flex:1;min-width:0}
+.thread-name{font-weight:600;font-size:14px}
+.thread-phone{color:var(--muted);font-size:11px;margin-top:2px}
+.thread-preview{color:var(--muted);font-size:12px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread-badge{background:var(--err);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;align-self:center}
+.chat-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;max-height:calc(100vh - 100px);overflow:hidden}
+.chat-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.chat-head b{font-size:14px}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+.msg{max-width:80%;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.4;word-wrap:break-word}
+.msg.in{align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:4px}
+.msg.out{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:.6;margin-top:3px;display:block;text-align:right}
+.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card2)}
+.chat-input input{flex:1;margin:0}
+.chat-input button{width:auto;padding:0 18px;margin:0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:12px;
+  background:var(--card2);border:1px solid var(--border);font-size:14px;z-index:9999;animation:up .2s;max-width:90vw}
+.toast.ok{border-color:var(--ok)} .toast.err{border-color:var(--err)}
+@keyframes up{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-truck"></i> КУРЬЕР • WHOPPER BAR</h1>
-        
-        <div id="ordersContainer">
-            <div class="orders-grid" id="ordersGrid"></div>
-        </div>
+<div class="wrap" id="root"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBlZ5ZtyTXgtXxSJAx1jOxwhTrzlHRJmo",
+  authDomain: "bk-cashier.firebaseapp.com",
+  databaseURL: "https://bk-cashier-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bk-cashier",
+  storageBucket: "bk-cashier.firebasestorage.app",
+  messagingSenderId: "385000840969",
+  appId: "1:385000840969:web:1ec8d09176b6551dc0fdd8"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+db.goOnline();
+
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg, type){
+  const t = document.createElement('div');
+  t.className='toast '+(type||'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
+const state = {
+  login:null, me:null,
+  threads:{}, messages:{}, activePhone:null,
+};
+let unsubThreads=null, unsubMsgs=null;
+let renderPending=false;
+function renderSoon(){
+  if (renderPending) return;
+  renderPending = true;
+  requestAnimationFrame(()=>{ renderPending=false; render(); });
+}
+
+function renderLogin(){
+  document.getElementById('root').innerHTML = `
+    <div class="login-wrap"><div class="panel">
+      <div class="brand"><div class="logo">?</div><h1>Курсив Поддержка</h1></div>
+      <h2>Вход для оператора</h2>
+      <p class="muted small">Логин и пароль выдаёт администратор</p>
+      <input id="loginInput" class="input" placeholder="Логин" autocomplete="username"/>
+      <input id="passInput" class="input" type="password" placeholder="Пароль" autocomplete="current-password"/>
+      <div class="err" id="err"></div>
+      <button class="btn" id="btnLogin">Войти</button>
+    </div></div>
+  `;
+  const go = async () => {
+    const login = document.getElementById('loginInput').value.trim().toLowerCase();
+    const pass = document.getElementById('passInput').value;
+    const err = document.getElementById('err');
+    err.textContent = '';
+    if (!login || !pass){ err.textContent='Заполните поля'; return; }
+    document.getElementById('btnLogin').textContent='Проверяем…';
+    try {
+      const snap = await db.ref('supportAccounts/'+login).once('value');
+      if (!snap.exists()) throw new Error('Неверный логин или пароль');
+      const data = snap.val();
+      if (data.password !== pass) throw new Error('Неверный логин или пароль');
+      localStorage.setItem('support_session', login);
+      state.login = login; state.me = data;
+      subscribe();
+    } catch(e){
+      err.textContent = e.message;
+      document.getElementById('btnLogin').textContent = 'Войти';
+    }
+  };
+  document.getElementById('btnLogin').onclick = go;
+  document.getElementById('passInput').addEventListener('keydown', e=>{ if (e.key==='Enter') go(); });
+}
+
+function subscribe(){
+  if (unsubThreads){ try{unsubThreads();}catch(e){} }
+  const tRef = db.ref('supportThreads');
+  const tCb = snap => { state.threads = snap.val() || {}; renderSoon(); };
+  tRef.on('value', tCb);
+  unsubThreads = () => tRef.off('value', tCb);
+  if (state.activePhone) subscribeMessages(state.activePhone);
+  else render();
+}
+function subscribeMessages(phone){
+  if (unsubMsgs){ try{unsubMsgs();}catch(e){} }
+  const mRef = db.ref('supportMessages/'+phone);
+  const mCb = snap => {
+    state.messages[phone] = snap.val() || {};
+    renderSoon();
+    markRead(phone);
+  };
+  mRef.on('value', mCb);
+  unsubMsgs = () => mRef.off('value', mCb);
+}
+async function markRead(phone){
+  const msgs = state.messages[phone] || {};
+  const updates = {};
+  let changed = false;
+  for (const [id,m] of Object.entries(msgs)){
+    if (m.from === 'client' && !m.readAtSupport){
+      updates['supportMessages/'+phone+'/'+id+'/readAtSupport'] = Date.now();
+      changed = true;
+    }
+  }
+  if (changed) await db.ref().update(updates);
+}
+async function sendReply(phone, text){
+  text = String(text||'').trim();
+  if (!text) return;
+  const ref = db.ref('supportMessages/'+phone).push();
+  await ref.set({
+    from: 'support',
+    text,
+    ts: Date.now(),
+    supportLogin: state.login,
+  });
+  await db.ref('supportThreads/'+phone).update({
+    lastMessage: text,
+    lastTs: Date.now(),
+  });
+}
+
+function logout(){
+  if (unsubThreads){ try{unsubThreads();}catch(e){} unsubThreads=null; }
+  if (unsubMsgs){ try{unsubMsgs();}catch(e){} unsubMsgs=null; }
+  localStorage.removeItem('support_session');
+  state.login = null; state.me = null;
+  state.threads = {}; state.messages = {}; state.activePhone = null;
+  render();
+}
+
+function render(){
+  if (!state.login){ renderLogin(); return; }
+  const threads = Object.entries(state.threads).map(([phone,t])=>({phone, ...t}))
+    .sort((a,b)=> (b.lastTs||0) - (a.lastTs||0));
+  const activeMsgs = state.activePhone ? Object.entries(state.messages[state.activePhone]||{})
+    .map(([id,m])=>({id,...m})).sort((a,b)=>a.ts-b.ts) : [];
+  const activeThread = state.activePhone ? state.threads[state.activePhone] : null;
+
+  document.getElementById('root').innerHTML = `
+    <div class="header">
+      <div class="logo-sm">Курсив <span>Поддержка</span></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="muted small">${esc(state.me?.name || state.login)}</span>
+        <button class="btn small ghost" id="btnLogout" style="width:auto">Выйти</button>
+      </div>
     </div>
+    <div class="content">
+      <div class="threads">
+        <div class="threads-head"><h3 style="margin:0">Диалоги (${threads.length})</h3></div>
+        <div class="thread-list">
+          ${threads.length ? threads.map(t => {
+            const msgs = state.messages[t.phone] || {};
+            let unread = 0;
+            for (const m of Object.values(msgs)) if (m.from==='client' && !m.readAtSupport) unread++;
+            return `<div class="thread ${state.activePhone===t.phone?'active':''}" data-thread="${esc(t.phone)}">
+              <div class="thread-body">
+                <div class="thread-name">${esc(t.name || t.phone)}</div>
+                <div class="thread-phone">${esc(t.phone)}</div>
+                <div class="thread-preview">${esc(t.lastMessage||'')}</div>
+              </div>
+              ${unread ? `<span class="thread-badge">${unread}</span>` : ''}
+            </div>`;
+          }).join('') : '<div class="empty">Пока нет обращений</div>'}
+        </div>
+      </div>
+      ${state.activePhone ? `
+        <div class="chat-wrap">
+          <div class="chat-head">
+            <div>
+              <b>${esc(activeThread?.name || state.activePhone)}</b>
+              <div class="muted small">${esc(state.activePhone)}</div>
+            </div>
+          </div>
+          <div class="chat-msgs" id="chatMsgs">
+            ${activeMsgs.length ? activeMsgs.map(m=>`
+              <div class="msg ${m.from==='support'?'out':'in'}">
+                ${esc(m.text)}
+                <span class="msg-time">${new Date(m.ts).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${m.from==='support'?' · '+esc(m.supportLogin||''):''}</span>
+              </div>`).join('') : '<div class="empty">Нет сообщений</div>'}
+          </div>
+          <div class="chat-input">
+            <input id="replyInput" class="input" placeholder="Ответ клиенту…" autocomplete="off" style="margin:0"/>
+            <button class="btn" id="btnSendReply" style="width:auto">➤</button>
+          </div>
+        </div>
+      ` : '<div class="chat-wrap"><div class="empty" style="margin:auto">Выберите диалог слева</div></div>'}
+    </div>
+  `;
+  if (state.activePhone){
+    const cm = document.getElementById('chatMsgs');
+    if (cm) cm.scrollTop = cm.scrollHeight;
+    const inp = document.getElementById('replyInput');
+    const send = async () => {
+      const v = inp.value;
+      if (!v.trim()) return;
+      inp.value = '';
+      try { await sendReply(state.activePhone, v); } catch(e){ toast(e.message,'err'); }
+    };
+    document.getElementById('btnSendReply').onclick = send;
+    inp.addEventListener('keydown', e => { if (e.key==='Enter') send(); });
+    inp.focus();
+  }
+  document.getElementById('btnLogout').onclick = logout;
+  document.querySelectorAll('[data-thread]').forEach(el => {
+    el.onclick = () => {
+      const p = el.dataset.thread;
+      state.activePhone = p;
+      subscribeMessages(p);
+      render();
+    };
+  });
+}
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBlZ5ZtyTXgtXxSJAx1jOxwhTrzlHRJmo",
-            authDomain: "bk-cashier.firebaseapp.com",
-            databaseURL: "https://bk-cashier-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "bk-cashier",
-            storageBucket: "bk-cashier.firebasestorage.app",
-            messagingSenderId: "385000840969",
-            appId: "1:385000840969:web:1ec8d09176b6551dc0fdd8"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let orders = {};
-
-        function loadOrders() {
-            db.ref('orders').on('value', (snapshot) => {
-                orders = snapshot.val() || {};
-                renderOrders();
-            });
-        }
-
-        function getStatusText(status) {
-            const map = {
-                'waiting_pickup': '⏳ Ожидает отправки',
-                'to_pickup': '🚚 Едет в ПВЗ',
-                'with_courier': '🚚 У курьера',
-                'courier_arrived': '🚪 Курьер приехал',
-                'delivered': '📦 Выдан'
-            };
-            return map[status] || '⏳ Ожидает';
-        }
-
-        function renderOrders() {
-            const grid = document.getElementById('ordersGrid');
-            const ordersArray = Object.entries(orders).filter(([id, o]) => o.deliveryType === 'delivery' && o.status !== 'delivered');
-            if(ordersArray.length === 0) { grid.innerHTML = '<div style="background:white; border-radius:20px; padding:40px; text-align:center;">Нет заказов на доставку</div>'; return; }
-            
-            grid.innerHTML = ordersArray.map(([id, o]) => {
-                let actionHtml = '';
-                if(o.status === 'waiting_pickup') {
-                    actionHtml = `<button class="btn btn-depart" onclick="updateStatus('${id}', 'to_pickup')">🚚 Выехать к клиенту</button>`;
-                } else if(o.status === 'with_courier') {
-                    actionHtml = `<button class="btn btn-arrived" onclick="updateStatus('${id}', 'courier_arrived')">🚪 Курьер приехал</button>`;
-                } else if(o.status === 'courier_arrived') {
-                    actionHtml = `
-                        <div class="code-input">
-                            <input type="text" id="code-${id}" placeholder="6-значный код" maxlength="6">
-                            <button class="btn btn-deliver" onclick="checkCodeAndDeliver('${id}')">📦 Выдать</button>
-                        </div>
-                    `;
-                }
-                
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <span class="order-num">#${id}</span>
-                            <span class="status-badge status-${o.status === 'with_courier' ? 'with_courier' : (o.status === 'courier_arrived' ? 'courier_arrived' : 'to_pickup')}">${getStatusText(o.status)}</span>
-                        </div>
-                        <div>${o.items.map(i => `${i.name} x${i.quantity}`).join(', ')}</div>
-                        <div style="font-weight:bold; margin:10px 0;">${o.total} ₽</div>
-                        ${o.address ? `<div class="address-info"><i class="fas fa-map-marker-alt"></i> ${o.address}</div>` : ''}
-                        <div class="pickup-code" style="font-family:monospace; background:#f0f0f0; padding:8px; border-radius:10px; text-align:center;">Код клиента: ${o.pickupCode}</div>
-                        ${actionHtml}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.updateStatus = (orderId, newStatus) => {
-            db.ref('orders/' + orderId).update({ status: newStatus });
-            if(newStatus === 'to_pickup') alert(`🚚 Заказ #${orderId} взят в доставку`);
-            if(newStatus === 'courier_arrived') alert(`🚪 Курьер приехал к клиенту, запросите код у клиента`);
-        };
-
-        window.checkCodeAndDeliver = (orderId) => {
-            const inputCode = document.getElementById(`code-${orderId}`).value;
-            const order = orders[orderId];
-            if(inputCode === order.pickupCode) {
-                db.ref('orders/' + orderId).update({ status: 'delivered' });
-                alert(`✅ Заказ #${orderId} выдан клиенту!`);
-                const utterance = new SpeechSynthesisUtterance(`Заказ номер ${orderId} выдан`);
-                utterance.lang = 'ru-RU';
-                speechSynthesis.speak(utterance);
-            } else {
-                alert(`❌ Неверный код! Правильный код: ${order.pickupCode}`);
-                const utterance = new SpeechSynthesisUtterance(`Неверный код`);
-                utterance.lang = 'ru-RU';
-                speechSynthesis.speak(utterance);
-            }
-        };
-
-        loadOrders();
-    </script>
+(function boot(){
+  const saved = localStorage.getItem('support_session');
+  if (saved){
+    db.ref('supportAccounts/'+saved).once('value').then(snap => {
+      if (snap.exists()){ state.login = saved; state.me = snap.val(); subscribe(); }
+      else render();
+    });
+  } else render();
+})();
+</script>
 </body>
 </html>
